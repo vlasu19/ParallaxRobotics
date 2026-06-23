@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Parallax Robotics — 具身智能的数据基座 · The Data Foundry for Embodied AI</title>
+<meta name="description" content="ReFlow 以消费级硬件规模化生产动捕级精度的人类动作数据，构筑具身智能时代不可或缺的数据基础设施。" />
+<style>
+  :root{
+    --bg:#05060a;
+    --bg-soft:#0a0c14;
+    --panel:#0e111c;
+    --line:rgba(255,255,255,.09);
+    --line-strong:rgba(255,255,255,.16);
+    --fg:#f3f5fb;
+    --muted:#9aa3b8;
+    --muted-2:#6b7488;
+    --accent:#6e8bff;
+    --accent-2:#39e0c4;
+    --accent-warm:#ff8a5c;
+    --max:1180px;
+    --r:16px;
+    --serif:'Times New Roman',ui-serif,Georgia,serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;scroll-snap-type:y proximity}
+  body{
+    background:var(--bg);color:var(--fg);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei',Inter,Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;line-height:1.5;overflow-x:hidden;
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 28px}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.04em}
+  .eyebrow{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .muted{color:var(--muted)}
+
+  /* NAV */
+  nav{position:fixed;top:0;left:0;right:0;z-index:50;
+    backdrop-filter:blur(14px);background:rgba(5,6,10,.6);
+    border-bottom:1px solid transparent;transition:border-color .3s,background .3s}
+  nav.scrolled{border-bottom:1px solid var(--line);background:rgba(5,6,10,.82)}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:66px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;letter-spacing:-.01em}
+  .logo .dot{width:11px;height:11px;border-radius:50%;background:conic-gradient(from 180deg,var(--accent),var(--accent-2),var(--accent-warm),var(--accent));box-shadow:0 0 14px rgba(110,139,255,.7)}
+  .nav-links{display:flex;gap:30px;align-items:center}
+  .nav-links a{font-size:14px;color:var(--muted);transition:color .2s}
+  .nav-links a:hover{color:var(--fg)}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:999px;font-size:14px;font-weight:600;
+    background:var(--fg);color:#05060a;transition:transform .2s,box-shadow .2s}
+  .btn:hover{transform:translateY(-1px);box-shadow:0 10px 30px rgba(243,245,251,.18)}
+  .btn-ghost{background:transparent;color:var(--fg);border:1px solid var(--line-strong)}
+  .btn-ghost:hover{box-shadow:none;border-color:var(--fg)}
+  @media(max-width:820px){.nav-links{display:none}}
+
+  /* HERO */
+  header{position:relative;min-height:100vh;display:flex;align-items:center;padding:120px 0;overflow:hidden;z-index:1}
+  .grid-bg{position:absolute;inset:0;z-index:0;
+    background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:64px 64px;mask-image:radial-gradient(ellipse 80% 70% at 50% 30%,#000 30%,transparent 75%);
+    opacity:.5}
+  .glow{position:absolute;z-index:0;border-radius:50%;filter:blur(120px);opacity:.4}
+  .glow.a{width:620px;height:620px;background:radial-gradient(circle,#3550ff,transparent 70%);top:-180px;left:-120px}
+  .glow.b{width:520px;height:520px;background:radial-gradient(circle,#0fbfa3,transparent 70%);top:60px;right:-140px;opacity:.28}
+  header .wrap{position:relative;z-index:1}
+  h1{font-size:clamp(38px,6vw,76px);line-height:1.04;letter-spacing:-.03em;font-weight:700;max-width:16ch}
+  h1 .grad{background:linear-gradient(100deg,#fff,#9fb4ff 55%,#56e8cf);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero-sub{margin-top:26px;font-size:clamp(18px,2.2vw,23px);color:var(--muted);max-width:50ch;line-height:1.55}
+  .hero-tag{margin-top:30px;display:inline-flex;align-items:center;gap:12px;font-size:13px;color:var(--muted-2);
+    border:1px solid var(--line);border-radius:999px;padding:8px 16px}
+  .hero-tag b{color:var(--fg);font-weight:600}
+  .hero-cta{margin-top:40px;display:flex;gap:14px;flex-wrap:wrap}
+  .credo{margin-top:80px;font-family:var(--serif);font-size:clamp(22px,3vw,34px);font-style:italic;color:#cdd5ea;
+    border-left:2px solid var(--accent);padding-left:22px;max-width:24ch;line-height:1.35}
+
+  /* SECTIONS */
+  section{padding:108px 0;position:relative}
+  .sec-head{max-width:62ch}
+  .sec-head h2{font-size:clamp(28px,4vw,46px);line-height:1.1;letter-spacing:-.02em;font-weight:700;margin-top:16px}
+  .sec-head p{margin-top:20px;font-size:18px;color:var(--muted);line-height:1.6}
+  .divider{border:0;border-top:1px solid var(--line)}
+
+  /* shift / two ready */
+  .ready{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:52px}
+  .ready .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:30px}
+  .ready .card h3{font-size:20px;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+  .ready .card .tick{color:var(--accent-2);font-size:15px}
+  .bottleneck{margin-top:32px;text-align:center;padding:40px;border:1px dashed var(--line-strong);border-radius:var(--r);
+    background:linear-gradient(180deg,rgba(110,139,255,.06),transparent)}
+  .bottleneck .big{font-size:clamp(26px,3.6vw,40px);font-weight:700;letter-spacing:-.02em}
+  .bottleneck .big em{font-style:normal;color:var(--accent-warm)}
+
+  /* STAT GRID */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:54px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:26px;transition:border-color .3s,transform .3s}
+  .stat:hover{border-color:var(--line-strong);transform:translateY(-3px)}
+  .stat .n{font-size:clamp(30px,3.4vw,42px);font-weight:700;letter-spacing:-.02em;
+    background:linear-gradient(120deg,#fff,#8ea7ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .stat .l{margin-top:8px;font-size:13.5px;color:var(--muted);line-height:1.45}
+  .stat .src{margin-top:10px;font-size:11px;color:var(--muted-2);letter-spacing:.04em}
+  @media(max-width:900px){.stats{grid-template-columns:repeat(2,1fr)}.ready{grid-template-columns:1fr}}
+  @media(max-width:520px){.stats{grid-template-columns:1fr}}
+
+  /* evidence logos */
+  .evidence{margin-top:46px;border-top:1px solid var(--line);padding-top:30px}
+  .evidence .cap{font-size:12.5px;color:var(--muted-2);letter-spacing:.14em;text-transform:uppercase;margin-bottom:22px}
+  .chips{display:flex;flex-wrap:wrap;gap:12px}
+  .chip{font-size:14px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:9px 16px;transition:color .2s,border-color .2s}
+  .chip:hover{color:var(--fg);border-color:var(--line-strong)}
+  .chip b{color:var(--fg);font-weight:600}
+
+  /* TRIANGLE */
+  .tri-grid{display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center;margin-top:54px}
+  .tri-svg{width:100%;height:auto}
+  .gap-list{display:flex;flex-direction:column;gap:18px}
+  .gap-item{border-left:2px solid var(--line-strong);padding:4px 0 4px 20px}
+  .gap-item h4{font-size:18px;margin-bottom:6px}
+  .gap-item h4 span{color:var(--accent)}
+  .gap-item p{color:var(--muted);font-size:15px;line-height:1.55}
+  @media(max-width:820px){.tri-grid{grid-template-columns:1fr;gap:34px}}
+
+  /* SOLUTION */
+  .panel-dark{background:var(--bg-soft)}
+  .sol-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:50px;align-items:center;margin-top:50px}
+  .sol-points{display:flex;flex-direction:column;gap:22px}
+  .sol-point{display:flex;gap:16px}
+  .sol-point .k{flex:0 0 auto;width:38px;height:38px;border-radius:10px;display:grid;place-items:center;
+    background:rgba(110,139,255,.12);border:1px solid rgba(110,139,255,.3);color:var(--accent);font-weight:700;font-size:15px}
+  .sol-point h4{font-size:17px;margin-bottom:4px}
+  .sol-point p{color:var(--muted);font-size:14.5px;line-height:1.5}
+  .proof-box{margin-top:30px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:26px}
+  .proof-box .row{display:flex;justify-content:space-between;align-items:baseline;padding:13px 0;border-bottom:1px solid var(--line)}
+  .proof-box .row:last-child{border-bottom:0}
+  .proof-box .v{font-size:24px;font-weight:700;color:var(--accent-2)}
+  .proof-box .d{font-size:13.5px;color:var(--muted);max-width:62%;text-align:right}
+  .cam-svg{width:100%;height:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--panel)}
+  @media(max-width:820px){.sol-grid{grid-template-columns:1fr;gap:36px}}
+
+  /* COLLECTION scenarios */
+  .scen{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:50px}
+  .scen .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:28px;transition:transform .3s,border-color .3s}
+  .scen .card:hover{transform:translateY(-4px);border-color:var(--line-strong)}
+  .scen .ico{font-size:26px;margin-bottom:14px}
+  .scen h4{font-size:18px;margin-bottom:8px}
+  .scen p{color:var(--muted);font-size:14.5px;line-height:1.55}
+  .vs-umi{margin-top:30px;display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+  .vs-umi>div{padding:26px}
+  .vs-umi .a{background:rgba(255,255,255,.02);border-right:1px solid var(--line)}
+  .vs-umi h5{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-2);margin-bottom:14px}
+  .vs-umi .x{color:var(--accent-warm)}
+  .vs-umi .o{color:var(--accent-2)}
+  .vs-umi li{list-style:none;font-size:14.5px;color:var(--muted);padding:7px 0 7px 24px;position:relative;line-height:1.45}
+  .vs-umi li:before{position:absolute;left:0;top:7px}
+  .vs-umi .a li:before{content:"—";color:var(--accent-warm)}
+  .vs-umi .b li:before{content:"✓";color:var(--accent-2)}
+  @media(max-width:820px){.scen{grid-template-columns:1fr}.vs-umi{grid-template-columns:1fr}.vs-umi .a{border-right:0;border-bottom:1px solid var(--line)}}
+
+  /* TWO TRACK */
+  .track{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:50px}
+  .track .card{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:32px;overflow:hidden}
+  .track .card:before{content:"";position:absolute;top:0;left:0;right:0;height:3px}
+  .track .card.w:before{background:linear-gradient(90deg,var(--accent),transparent)}
+  .track .card.h:before{background:linear-gradient(90deg,var(--accent-2),transparent)}
+  .track .badge{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-2)}
+  .track h3{font-size:23px;margin:10px 0 16px;letter-spacing:-.01em}
+  .track table{width:100%;border-collapse:collapse;font-size:14px}
+  .track td{padding:9px 0;border-bottom:1px solid var(--line);vertical-align:top}
+  .track td:first-child{color:var(--muted-2);width:38%}
+  .track tr:last-child td{border-bottom:0}
+  @media(max-width:820px){.track{grid-template-columns:1fr}}
+
+  /* BUSINESS / flywheel */
+  .biz{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:50px}
+  .biz .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:30px}
+  .biz h3{font-size:20px;margin-bottom:6px}
+  .biz .sub{color:var(--muted-2);font-size:13px;margin-bottom:16px}
+  .biz li{list-style:none;color:var(--muted);font-size:14.5px;padding:8px 0 8px 22px;position:relative;line-height:1.5}
+  .biz li:before{content:"→";position:absolute;left:0;color:var(--accent)}
+  .flywheel{margin-top:36px;text-align:center}
+  .fly{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:13px}
+  .fly-node{font-size:16px;font-weight:600;padding:13px 22px;border-radius:13px;white-space:nowrap;color:#eaf0ff;
+    background:linear-gradient(180deg,rgba(110,139,255,.14),rgba(110,139,255,.04));
+    border:1px solid rgba(110,139,255,.28);animation:flyPulse 5s ease-in-out infinite}
+  .fly-node b{color:var(--accent-2);font-weight:700;margin-left:3px}
+  .fly-node:nth-child(1){animation-delay:0s}
+  .fly-node:nth-child(3){animation-delay:.5s}
+  .fly-node:nth-child(5){animation-delay:1s}
+  .fly-node:nth-child(7){animation-delay:1.5s}
+  .fly-node:nth-child(9){animation-delay:2s}
+  @keyframes flyPulse{0%,100%{border-color:rgba(110,139,255,.26);box-shadow:none}
+    50%{border-color:rgba(110,139,255,.65);box-shadow:0 0 22px rgba(110,139,255,.22)}}
+  .fly-arrow{font-size:24px;line-height:1;color:var(--accent);font-weight:700}
+  .fly-loop{display:inline-flex;align-items:center;gap:8px;font-size:15px;font-weight:700;padding:13px 20px;border-radius:999px;white-space:nowrap;
+    color:var(--accent-2);background:rgba(57,224,196,.12);border:1px solid rgba(57,224,196,.4)}
+  .fly-loop span{font-size:20px;display:inline-block;animation:spin 6s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .fly-cap{text-align:center;color:var(--muted);font-size:15px;margin:26px auto 0;max-width:62ch;line-height:1.65}
+  @media(max-width:680px){.fly-arrow{transform:rotate(90deg)}.fly{gap:9px}}
+  @media(max-width:820px){.biz{grid-template-columns:1fr}}
+
+  /* TEAM / research */
+  .papers{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:50px}
+  .paper{display:block;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:30px;transition:transform .3s,border-color .3s}
+  .paper:hover{transform:translateY(-4px);border-color:var(--accent)}
+  .paper .venue{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .paper h3{font-size:21px;margin:10px 0 12px;line-height:1.25}
+  .paper p{color:var(--muted);font-size:14.5px;line-height:1.55}
+  .paper .metrics{margin-top:18px;display:flex;gap:24px}
+  .paper .metrics div b{font-size:22px;font-weight:700;color:var(--accent-2)}
+  .paper .metrics div span{display:block;font-size:12px;color:var(--muted-2);margin-top:2px}
+  .paper .arrow{margin-top:18px;font-size:14px;color:var(--accent)}
+  @media(max-width:820px){.papers{grid-template-columns:1fr}}
+
+  /* CTA / endgame */
+  .endgame{text-align:center;padding:130px 0}
+  .endgame h2{font-size:clamp(30px,5vw,58px);letter-spacing:-.03em;line-height:1.08;max-width:18ch;margin:0 auto;font-weight:700}
+  .endgame .vision{margin-top:30px;font-family:var(--serif);font-style:italic;font-size:clamp(18px,2.4vw,26px);color:#aeb8d2;max-width:38ch;margin-left:auto;margin-right:auto}
+  .endgame .hero-cta{justify-content:center;margin-top:44px}
+  .phases{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:50px 0 6px;text-align:left}
+  .phase{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:30px 26px}
+  .phase.now{border-color:rgba(110,139,255,.45);box-shadow:0 0 30px rgba(110,139,255,.1)}
+  .phase.vision{border-style:dashed;background:transparent}
+  .phase .step{font:700 13px ui-monospace,monospace;color:var(--muted-2);letter-spacing:.12em}
+  .phase h4{font-size:20px;margin:9px 0 10px}
+  .phase p{color:var(--muted);font-size:14px;line-height:1.62}
+  .ph-tag{position:absolute;top:22px;right:22px;font-size:11px;font-weight:700;letter-spacing:.08em;padding:5px 12px;border-radius:999px}
+  .ph-tag.now{color:#05060a;background:var(--accent)}
+  .ph-tag.next{color:var(--accent-2);background:rgba(57,224,196,.12);border:1px solid rgba(57,224,196,.4)}
+  .ph-tag.vis{color:var(--muted);background:transparent;border:1px solid var(--line-strong)}
+  @media(max-width:820px){.phases{grid-template-columns:1fr}}
+
+  /* ===== foundation model page ===== */
+  .pipe{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:14px;align-items:stretch;margin-top:50px}
+  .pstage{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:30px 26px}
+  .pstage:first-child{border-color:rgba(110,139,255,.42);box-shadow:0 0 30px rgba(110,139,255,.1)}
+  .pnum{font:700 13px ui-monospace,monospace;color:var(--accent);letter-spacing:.12em}
+  .pstage h4{font-size:18px;margin:9px 0 10px}
+  .pstage p{color:var(--muted);font-size:14px;line-height:1.62}
+  .pstage p b{color:#eaf0ff;font-weight:600}
+  .ptag{display:inline-block;margin-top:16px;font:600 11px ui-monospace,monospace;letter-spacing:.06em;color:var(--accent-2);
+    background:rgba(57,224,196,.1);border:1px solid rgba(57,224,196,.32);padding:5px 12px;border-radius:999px}
+  .parrow{display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--accent);font-weight:700}
+  .bdes{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:20px}
+  .bcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:26px}
+  .bcard h4{font-size:16px;margin-bottom:9px}
+  .bcard p{color:var(--muted);font-size:14px;line-height:1.6}
+  @media(max-width:820px){.pipe{grid-template-columns:1fr}.parrow{transform:rotate(90deg)}.bdes{grid-template-columns:1fr}}
+
+  footer{border-top:1px solid var(--line);padding:50px 0 60px}
+  .foot-in{display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px}
+  footer .muted{font-size:13.5px;max-width:40ch;line-height:1.6}
+  .foot-links{display:flex;gap:30px;font-size:14px;color:var(--muted)}
+  .refs{margin-top:34px;font-size:11.5px;color:var(--muted-2);line-height:1.8;letter-spacing:.01em}
+
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  /* ===== scroll progress ===== */
+  #progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:60;
+    background:linear-gradient(90deg,var(--accent),var(--accent-2),var(--accent-warm));box-shadow:0 0 12px rgba(110,139,255,.6)}
+
+  /* ===== hero aurora + particles ===== */
+  .aurora{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+  .aurora span{position:absolute;border-radius:50%;filter:blur(115px);mix-blend-mode:screen}
+  .aurora .s1{width:560px;height:560px;background:#3b5bff;opacity:.4;top:-160px;left:-80px;animation:drift1 18s ease-in-out infinite alternate}
+  .aurora .s2{width:480px;height:480px;background:#0fbfa3;opacity:.3;top:40px;right:-120px;animation:drift2 22s ease-in-out infinite alternate}
+  .aurora .s3{width:440px;height:440px;background:#ff7a4d;opacity:.18;bottom:-220px;left:38%;animation:drift3 26s ease-in-out infinite alternate}
+  @keyframes drift1{to{transform:translate(120px,60px) scale(1.15)}}
+  @keyframes drift2{to{transform:translate(-110px,80px) scale(1.1)}}
+  @keyframes drift3{to{transform:translate(-60px,-50px) scale(1.22)}}
+  .particles{position:absolute;inset:0;z-index:0;pointer-events:none}
+  .particles i{position:absolute;width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.55);
+    box-shadow:0 0 8px rgba(255,255,255,.6);animation:floatp linear infinite}
+  @keyframes floatp{0%{transform:translateY(30px);opacity:0}12%{opacity:1}88%{opacity:1}100%{transform:translateY(-140px);opacity:0}}
+
+  /* ===== tilt + spotlight ===== */
+  [data-tilt]{transition:transform .25s ease;will-change:transform}
+  .spotlight{position:relative}
+  .spotlight:before{content:"";position:absolute;inset:0;border-radius:inherit;opacity:0;transition:opacity .3s;z-index:4;
+    background:radial-gradient(340px circle at var(--mx,50%) var(--my,50%),rgba(110,139,255,.18),transparent 60%);pointer-events:none}
+  .spotlight:hover:before{opacity:1}
+
+  /* ===== marquee ===== */
+  .marquee{overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent)}
+  .marquee .track{display:flex;gap:12px;width:max-content;animation:scrollx 34s linear infinite}
+  .marquee:hover .track{animation-play-state:paused}
+  @keyframes scrollx{to{transform:translateX(-50%)}}
+
+  /* ===== scene cards (image assets) ===== */
+  .scene-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;transition:border-color .3s}
+  .scene-card:hover{border-color:var(--line-strong)}
+  .scene-art{position:relative;aspect-ratio:16/10;overflow:hidden;background:radial-gradient(130% 100% at 50% 0%,#161d31,#0a0d16)}
+  .scene-art svg{position:absolute;inset:0;width:100%;height:100%}
+  .scanline{position:absolute;left:0;right:0;height:56px;z-index:2;
+    background:linear-gradient(180deg,transparent,rgba(57,224,196,.16),rgba(57,224,196,.5),rgba(57,224,196,.16),transparent);
+    animation:scan 3.8s cubic-bezier(.5,0,.5,1) infinite}
+  @keyframes scan{0%{top:-22%}100%{top:118%}}
+  .ego-frame{position:absolute;inset:14px;pointer-events:none;z-index:3}
+  .ego-frame:before,.ego-frame:after,.ego-frame i:before,.ego-frame i:after{content:"";position:absolute;width:18px;height:18px;border:2px solid rgba(110,139,255,.85)}
+  .ego-frame:before{top:0;left:0;border-right:0;border-bottom:0}
+  .ego-frame:after{top:0;right:0;border-left:0;border-bottom:0}
+  .ego-frame i:before{bottom:0;left:0;border-right:0;border-top:0}
+  .ego-frame i:after{bottom:0;right:0;border-left:0;border-top:0}
+  .rec{position:absolute;top:20px;left:22px;z-index:3;font:600 11px ui-monospace,monospace;letter-spacing:.12em;color:#cfeee6;display:flex;align-items:center;gap:7px}
+  .rec b{width:8px;height:8px;border-radius:50%;background:#ff5a5a;box-shadow:0 0 8px #ff5a5a;animation:blink 1.3s steps(1) infinite}
+  @keyframes blink{50%{opacity:.25}}
+  .kp{fill:#39e0c4;animation:kp 2.4s ease-in-out infinite}
+  @keyframes kp{0%,100%{opacity:.45;r:2.4}50%{opacity:1;r:3.8}}
+  .scene-body{padding:24px}
+  .scene-body h4{font-size:18px;margin-bottom:8px}
+  .scene-body p{color:var(--muted);font-size:14.5px;line-height:1.55}
+  .scene-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .scene-art:after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(8,11,20,0) 55%,rgba(8,11,20,.55))}
+
+  /* ===== hero two-column + ego viewport ===== */
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:54px;align-items:center}
+  @media(max-width:900px){.hero-grid{grid-template-columns:1fr;gap:42px}}
+  .ego-viewport{position:relative;aspect-ratio:3/2;border-radius:18px;overflow:hidden;
+    background:radial-gradient(130% 120% at 50% 0%,#16203a,#080b14);
+    border:1px solid var(--line-strong);box-shadow:0 30px 80px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.03);
+    animation:vpfloat 7s ease-in-out infinite alternate}
+  @keyframes vpfloat{to{transform:translateY(-10px)}}
+  .ego-viewport svg{position:absolute;inset:0;width:100%;height:100%}
+  .ego-hand{animation:track 6s ease-in-out infinite alternate;transform-origin:center}
+  @keyframes track{0%{transform:translate(0,0)}100%{transform:translate(11px,-9px)}}
+  .hud{position:absolute;font:600 10.5px ui-monospace,monospace;letter-spacing:.1em;z-index:5;text-shadow:0 1px 4px #000}
+  .hud.tl{top:14px;left:16px;line-height:1.6;color:#9fe9da}
+  .hud.bl{bottom:14px;left:16px;color:#9aa3b8}
+  .hud.tr{top:14px;right:16px;display:flex;align-items:center;gap:6px;color:#ffd2cf}
+  .hud.tr b{width:8px;height:8px;border-radius:50%;background:#ff5a5a;box-shadow:0 0 8px #ff5a5a;animation:blink 1.3s steps(1) infinite}
+  .reticle{position:absolute;top:50%;left:50%;width:46px;height:46px;margin:-23px 0 0 -23px;z-index:4;opacity:.5;
+    border:1px solid rgba(110,139,255,.7);border-radius:50%;animation:retdrift 9s ease-in-out infinite alternate}
+  .reticle:before,.reticle:after{content:"";position:absolute;background:rgba(110,139,255,.6)}
+  .reticle:before{left:50%;top:-9px;width:1px;height:64px;margin-left:-.5px}
+  .reticle:after{top:50%;left:-9px;height:1px;width:64px;margin-top:-.5px}
+  @keyframes retdrift{0%{transform:translate(-20px,12px)}100%{transform:translate(24px,-14px)}}
+
+  /* ===== full-screen video hero + smooth paging ===== */
+  .bgvideo{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;overflow:hidden;background:#05060a;
+    will-change:width,height,transform;box-shadow:0 30px 90px rgba(0,0,0,.55)}
+  .bgvideo video{width:100%;height:100%;object-fit:cover}
+  .bgvideo:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,6,10,.5),rgba(5,6,10,.28) 38%,rgba(5,6,10,.94))}
+  .content{position:relative;z-index:2;background:var(--bg)}
+  header .hero-grid{grid-template-columns:1fr;max-width:62ch}
+  header .hero-visual{display:none}
+  header .hero-text h1,header .hero-text .hero-sub{text-shadow:0 2px 24px rgba(0,0,0,.5)}
+  .scroll-cue{position:absolute;left:50%;bottom:30px;transform:translateX(-50%);z-index:3;display:flex;flex-direction:column;align-items:center;gap:9px;
+    font:600 11px/1 ui-monospace,monospace;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;transition:opacity .4s}
+  .scroll-cue .m{width:23px;height:37px;border:1px solid var(--line-strong);border-radius:13px;position:relative}
+  .scroll-cue .m:before{content:"";position:absolute;left:50%;top:7px;width:4px;height:7px;margin-left:-2px;border-radius:2px;background:var(--accent);animation:scrolldot 1.7s ease-in-out infinite}
+  @keyframes scrolldot{0%{opacity:0;transform:translateY(0)}30%{opacity:1}100%{opacity:0;transform:translateY(13px)}}
+  .content section{scroll-snap-align:start}
+
+  /* ===== page 1: 视频缩至左侧，右侧主介绍 ===== */
+  .hero-min{position:relative;z-index:2;width:100%;will-change:opacity}
+  .hero-min h1{margin-top:14px}
+  .intro{position:relative;z-index:1;min-height:100vh;display:flex;align-items:center;padding:120px 0}
+  .intro-grid{display:grid;grid-template-columns:44% 1fr;gap:5%;align-items:center;width:100%}
+  .intro-stage{min-height:68vh}
+  .intro-copy h2{font-size:clamp(26px,3.4vw,40px);line-height:1.14;letter-spacing:-.02em;font-weight:700;margin-top:14px}
+  .intro-copy p{margin-top:20px;font-size:18px;color:var(--muted);line-height:1.65}
+  .intro-copy .hero-tag{margin-top:24px}
+  .intro-copy .hero-cta{margin-top:30px}
+  @media(max-width:820px){
+    .intro{background:var(--bg);min-height:auto;padding:90px 0}
+    .intro-grid{grid-template-columns:1fr}
+    .intro-stage{display:none}
+  }
+
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-snap-type:none}}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div class="bgvideo" id="bgvideo">
+  <video autoplay muted loop playsinline preload="auto" poster="hero-poster.jpg">
+    <source src="hero-web.mp4" type="video/mp4">
+    <source src="hero.mp4" type="video/mp4">
+  </video>
+</div>
+
+<nav id="nav">
+  <div class="wrap nav-in">
+    <a class="logo" href="#top"><span class="dot"></span>Parallax Robotics</a>
+    <div class="nav-links">
+      <a href="#shift">为什么是现在</a>
+      <a href="#gap">市场缺口</a>
+      <a href="#solution">解决方案</a>
+      <a href="#tracks">双轨</a>
+      <a href="#research">研究</a>
+      <a href="#brain">基模</a>
+    </div>
+    <a class="btn" href="#contact">联系我们</a>
+  </div>
+</nav>
+
+<header id="top">
+  <!-- 背景由固定的 #bgvideo 提供 -->
+  <div class="wrap hero-min">
+    <div class="hero-text">
+      <div class="eyebrow reveal">REFLOW · THE DATA FOUNDRY FOR EMBODIED AI</div>
+      <h1 class="reveal"><span class="grad">具身智能的数据基座</span></h1>
+    </div>
+    <div class="hero-visual reveal" hidden>
+      <div class="ego-viewport">
+          <svg viewBox="0 0 480 320" preserveAspectRatio="xMidYMid slice">
+            <g stroke="#3c4a6e" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="40" y="42" width="120" height="80"/><line x1="100" y1="42" x2="100" y2="122"/><line x1="40" y1="82" x2="160" y2="82"/>
+              <line x1="0" y1="150" x2="480" y2="150"/>
+              <path d="M312 150 v-30 M312 124 q-18 -10 -26 -34 M312 124 q18 -10 26 -34 M312 128 q-12 -18 -5 -38"/>
+              <path d="M298 150 l6 -30 h16 l6 30 z"/>
+              <line x1="0" y1="252" x2="480" y2="252"/>
+            </g>
+            <g class="ego-hand">
+              <g stroke="#566488" stroke-width="15" fill="none" stroke-linecap="round" opacity=".5">
+                <path d="M64 332 q62 -42 152 -74"/>
+                <path d="M416 332 q-62 -42 -152 -74"/>
+              </g>
+              <g stroke="#6e8bff" stroke-width="2" fill="none"><rect x="208" y="196" width="64" height="46"/><line x1="208" y1="213" x2="272" y2="213"/></g>
+              <g stroke="#39e0c4" stroke-width="1.5" fill="none" opacity=".7">
+                <path d="M220 196 l-3 -16 M220 196 l-12 -10 M220 196 l-7 -18 M220 196 l4 -16 M220 196 l11 -10"/>
+                <path d="M260 196 l3 -16 M260 196 l12 -10 M260 196 l7 -18 M260 196 l-4 -16 M260 196 l-11 -10"/>
+              </g>
+              <g>
+                <circle class="kp" cx="220" cy="196" r="3"/><circle class="kp" cx="217" cy="180" r="3"/><circle class="kp" cx="208" cy="186" r="3"/><circle class="kp" cx="213" cy="178" r="3"/><circle class="kp" cx="224" cy="180" r="3"/><circle class="kp" cx="231" cy="186" r="3"/>
+                <circle class="kp" cx="260" cy="196" r="3"/><circle class="kp" cx="263" cy="180" r="3"/><circle class="kp" cx="272" cy="186" r="3"/><circle class="kp" cx="267" cy="178" r="3"/><circle class="kp" cx="256" cy="180" r="3"/><circle class="kp" cx="249" cy="186" r="3"/>
+              </g>
+            </g>
+          </svg>
+          <div class="reticle"></div>
+          <div class="scanline"></div>
+          <div class="ego-frame"><i></i></div>
+          <div class="hud tl">采集方式 · EGO VIEW<br>1920×1080 · 30FPS</div>
+          <div class="hud tr"><b></b>REC</div>
+          <div class="hud bl">手部 21 关键点 · 实时重建</div>
+        </div>
+      </div>
+  </div>
+  <a class="scroll-cue" href="#intro" id="scrollcue"><span class="m"></span>向下滚动</a>
+</header>
+
+<!-- PAGE 1 · 主介绍（视频缩至左侧） -->
+<section id="intro" class="intro">
+  <div class="wrap intro-grid">
+    <div class="intro-stage" aria-hidden="true"></div>
+    <div class="intro-copy">
+      <div class="eyebrow reveal">我们做什么</div>
+      <h2 class="reveal">在消费级硬件上，<br>生产动捕级精度的人类动作数据。</h2>
+      <p class="reveal">ReFlow 规模化生产人类执行任务时的高精度动作序列——这是模型实现跨本体泛化的核心输入。数据不依附任何本体形态（“无本体”）：同一段人类操作，可同时用于训练双臂机器人、灵巧手与人形机器人。我们不做本体，而成为所有具身厂商共同的数据供应方。</p>
+      <div class="hero-tag reveal"><b>动捕级精度</b><span>·</span><b>消费级成本</b><span>·</span><b>无本体 · 跨本体</b></div>
+      <div class="hero-cta reveal">
+        <a class="btn" href="#contact">了解机会 →</a>
+        <a class="btn btn-ghost" href="#research">查看研究</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="content">
+<!-- 1. THE SHIFT -->
+<section id="shift">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">01 — 一个正在到来的转变</div>
+      <h2>过去十年，AI 学会了思考。<br>下一个十年，它必须学会行动。</h2>
+      <p>这场转变所需的两个前提，已在同一时点先后成熟。</p>
+    </div>
+    <div class="ready">
+      <div class="card reveal"><h3><span class="tick">●</span> 模型已经就绪</h3><p class="muted">VLA 与世界模型跨越了「可用」门槛，架构与训练范式趋于收敛。</p></div>
+      <div class="card reveal"><h3><span class="tick">●</span> 本体已经就绪</h3><p class="muted">人形机器人与灵巧手越过硬件可用线，量产进程加速展开。</p></div>
+    </div>
+    <div class="bottleneck reveal">
+      <div class="big">模型不再是瓶颈，本体也不再是瓶颈。<br>行业的全部重量，压到了最后一块拼图上——<em>数据。</em></div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- 2. BOTTLENECK + EVIDENCE -->
+<section id="evidence" class="panel-dark">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">02 — 真正的瓶颈是数据</div>
+      <h2>最有力的信号：行业最强的玩家，<br>在造产品之前，先造数据。</h2>
+      <p>这与大语言模型的演进高度同构——GPT 的瓶颈并非模型，而在于当时尚不存在的 RLHF 数据；Scale AI 将其规模化生产，奠定了 AI 的数据基座。今日的具身领域，正处于同一历史时刻。</p>
+    </div>
+    <div class="stats">
+      <div class="stat reveal spotlight" data-tilt><div class="n"><span class="count" data-to="20854">0</span><span style="font-size:18px"> h</span></div><div class="l">EgoScale 以两万小时人类数据，验证数据规模与性能的对数线性律（R²=0.998）</div><div class="src mono">EgoScale · NVIDIA·Berkeley·UMD</div></div>
+      <div class="stat reveal spotlight" data-tilt><div class="n"><span class="count" data-to="1000000">0</span>+</div><div class="l">AgiBot World 百万条真机轨迹，背后是 4,000㎡ 数据采集工厂</div><div class="src mono">AgiBot World · 智元·上海AI Lab</div></div>
+      <div class="stat reveal spotlight" data-tilt><div class="n"><span class="count" data-to="780000">0</span></div><div class="l">GR00T N1 以 78 万条合成轨迹补足真机数据——对「遥操作不可规模化」的承认</div><div class="src mono">GR00T N1 · NVIDIA</div></div>
+      <div class="stat reveal spotlight" data-tilt><div class="n">10⁶ : 10⁴</div><div class="l">可获得的第一人称视频 vs 全部公开真机数据——相差两个数量级</div><div class="src mono">HumanScale · PKU·NUS·MIT</div></div>
+    </div>
+    <div class="evidence reveal">
+      <div class="cap">独立研究正不约而同地印证这一方向</div>
+      <div class="marquee"><div class="track">
+        <span class="chip"><b>EgoScale</b> NVIDIA · UC Berkeley · UMD</span>
+        <span class="chip"><b>HumanScale</b> PKU · NUS · MIT · NVIDIA</span>
+        <span class="chip"><b>GR00T N1</b> NVIDIA</span>
+        <span class="chip"><b>EgoDex</b> Apple</span>
+        <span class="chip"><b>Aria / Ego4D</b> Meta</span>
+        <span class="chip"><b>Open X-Embodiment</b> Google DeepMind</span>
+        <span class="chip"><b>AgiBot World</b> 智元 · 上海AI Lab</span>
+        <span class="chip"><b>EgoScale</b> NVIDIA · UC Berkeley · UMD</span>
+        <span class="chip"><b>HumanScale</b> PKU · NUS · MIT · NVIDIA</span>
+        <span class="chip"><b>GR00T N1</b> NVIDIA</span>
+        <span class="chip"><b>EgoDex</b> Apple</span>
+        <span class="chip"><b>Aria / Ego4D</b> Meta</span>
+        <span class="chip"><b>Open X-Embodiment</b> Google DeepMind</span>
+        <span class="chip"><b>AgiBot World</b> 智元 · 上海AI Lab</span>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. THE GAP -->
+<section id="gap">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">03 — 世界需要的数据，今天还不存在</div>
+      <h2>两条路，各自撞上<br>同一面墙的不同侧。</h2>
+      <p>巨头们验证了数据是瓶颈，却也暴露了现有路径的天花板。精度、成本、规模——三者从未被同时满足。</p>
+    </div>
+
+    <div class="proof-box reveal" style="margin-top:42px">
+      <div class="row"><div class="v">↓ 24%</div><div class="d">HumanScale（PKU·NUS·MIT·NVIDIA）：相同数据量下，人类视频预训练使真机动作预测验证损失更低</div></div>
+      <div class="row"><div class="v">+52.5% / +90%</div><div class="d">分布内 / 分布外真机任务成功率，人类视频预训练全面超越遥操作真机数据</div></div>
+      <div class="row"><div class="v">5–50 / 时</div><div class="d">遥操作产能天花板（每操作员每小时 episode），单数据集成本 5–20 万美元</div></div>
+      <div class="row"><div class="v">390万 : 100万</div><div class="d">全球工业机器人保有量 vs 最大开源操作数据集 episode 数——供需严重失配</div></div>
+    </div>
+
+    <div class="tri-grid">
+      <div class="reveal">
+        <svg class="tri-svg" viewBox="0 0 420 360" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="tg" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#6e8bff"/><stop offset="1" stop-color="#39e0c4"/>
+            </linearGradient>
+          </defs>
+          <polygon points="210,40 380,320 40,320" fill="none" stroke="url(#tg)" stroke-width="2"/>
+          <circle cx="210" cy="40" r="6" fill="#6e8bff"/>
+          <circle cx="380" cy="320" r="6" fill="#39e0c4"/>
+          <circle cx="40" cy="320" r="6" fill="#ff8a5c"/>
+          <text x="210" y="24" fill="#f3f5fb" font-size="17" font-weight="700" text-anchor="middle">精度</text>
+          <text x="210" y="248" fill="#9aa3b8" font-size="12" text-anchor="middle">无人同时</text>
+          <text x="210" y="266" fill="#9aa3b8" font-size="12" text-anchor="middle">占据三个顶点</text>
+          <text x="392" y="345" fill="#f3f5fb" font-size="17" font-weight="700" text-anchor="end">规模</text>
+          <text x="28" y="345" fill="#f3f5fb" font-size="17" font-weight="700" text-anchor="start">成本</text>
+          <text x="150" y="190" fill="#6b7488" font-size="11" text-anchor="middle" transform="rotate(-59 150 190)">专业动捕</text>
+          <text x="295" y="185" fill="#6b7488" font-size="11" text-anchor="middle" transform="rotate(59 295 185)">通用视频</text>
+          <text x="210" y="338" fill="#6b7488" font-size="11" text-anchor="middle">真机遥操作</text>
+        </svg>
+      </div>
+      <div class="gap-list">
+        <div class="gap-item reveal"><h4><span>精度 ·</span> 公认的性能上限</h4><p>自单目视频估计的手部姿态、接触时序充满噪声；EgoScale 将自身天花板明确归因于 SLAM 与手部姿态估计的误差。</p></div>
+        <div class="gap-item reveal"><h4><span>成本 ·</span> 高得无法分布式</h4><p>光学动捕房 2.5–10 万美元、遥操作单数据集 5–20 万美元，且绑定具体本体，无法低成本复制。</p></div>
+        <div class="gap-item reveal"><h4><span>对齐 ·</span> 纯人类数据不足以收敛</h4><p>EgoVerse 证明，唯有引入少量人机对齐数据，正向 scaling 方才出现——而对齐属下游后训练的小步骤。</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- 4. SOLUTION -->
+<section id="solution" class="panel-dark">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">04 — 解决方案</div>
+      <h2>把动捕实验室，<br>装进一台相机。</h2>
+      <p>精度没有捷径。ReFlow 以一路第一人称视角为核心，叠加一路第三人称或 ego 双目视角，用多视角几何把重建精度推至动捕级——而硬件始终是消费级相机。</p>
+    </div>
+
+    <div class="sol-grid">
+      <div class="sol-points">
+        <div class="sol-point reveal"><div class="k">E</div><div><h4>ego 视角</h4><p>保证观测与机器人第一人称相机天然对齐。</p></div></div>
+        <div class="sol-point reveal"><div class="k">+</div><div><h4>第三人称 / ego 双目</h4><p>提供几何约束，消解单目固有的深度歧义与自遮挡。</p></div></div>
+        <div class="sol-point reveal"><div class="k">◆</div><div><h4>HandFlow 单目重建骨干</h4><p>在每一路视角上提供 SOTA 手部估计，多视角融合进一步消歧。</p></div></div>
+        <div class="proof-box reveal">
+          <div style="font-size:13px;color:var(--muted-2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">这并非假设，而是动捕级真值的既有生产方式</div>
+          <div class="row"><div class="v">1.6mm</div><div class="d">markerless 多视角（MAMMA）与 marker-based Vicon 标准管线的误差差距</div></div>
+          <div class="row"><div class="v">14.2mm</div><div class="d">InterHand2.6M 全视角手部 MPJPE（四视角时为 26.8mm）</div></div>
+          <div class="row"><div class="v">SOTA</div><div class="d">高精度真值基准 DexYCB / HOT3D 本就由多视角三角化产出，HandFlow 在其上领先</div></div>
+        </div>
+      </div>
+      <div class="reveal">
+        <svg class="cam-svg" viewBox="0 0 440 360" xmlns="http://www.w3.org/2000/svg">
+          <rect width="440" height="360" fill="transparent"/>
+          <!-- subject -->
+          <circle cx="220" cy="180" r="30" fill="none" stroke="#39e0c4" stroke-width="2"/>
+          <text x="220" y="226" fill="#9aa3b8" font-size="12" text-anchor="middle">自然作业中的人</text>
+          <!-- ego cam -->
+          <rect x="200" y="120" width="40" height="20" rx="4" fill="#6e8bff"/>
+          <text x="220" y="110" fill="#6e8bff" font-size="11" text-anchor="middle" font-weight="700">ego 头戴</text>
+          <!-- third person cams -->
+          <rect x="40" y="60" width="44" height="26" rx="5" fill="none" stroke="#f3f5fb" stroke-width="1.5"/>
+          <rect x="356" y="60" width="44" height="26" rx="5" fill="none" stroke="#f3f5fb" stroke-width="1.5"/>
+          <rect x="40" y="280" width="44" height="26" rx="5" fill="none" stroke="#f3f5fb" stroke-width="1.5"/>
+          <rect x="356" y="280" width="44" height="26" rx="5" fill="none" stroke="#f3f5fb" stroke-width="1.5"/>
+          <g stroke="rgba(110,139,255,.45)" stroke-width="1.5" stroke-dasharray="4 4">
+            <line x1="62" y1="86" x2="200" y2="170"/>
+            <line x1="378" y1="86" x2="245" y2="170"/>
+            <line x1="62" y1="280" x2="200" y2="195"/>
+            <line x1="378" y1="280" x2="245" y2="195"/>
+          </g>
+          <text x="220" y="334" fill="#6b7488" font-size="11" text-anchor="middle">多视角几何融合 → 动捕级 3D 真值</text>
+        </svg>
+        <p class="muted" style="font-size:13px;margin-top:14px;text-align:center">ReFlow 要做的，是把这套实验室棚拍的标准配方，工程化为消费级、可分布式的采集。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. COLLECTION MODEL -->
+<section id="collection">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">05 — 采集模式</div>
+      <h2>让数据采集，<br>隐入真实劳动。</h2>
+      <p>无需专用设备、无需专门的演示流程。采集者佩戴一路头部相机，以双手自然完成本职工作，数据采集即同步完成——捕捉真实、长尾、全手灵巧的操作分布。</p>
+    </div>
+
+    <div class="vs-umi reveal">
+      <div class="a">
+        <h5 class="x">手持式无本体采集（UMI 等）</h5>
+        <ul>
+          <li>需手持专用夹爪设备完成示范</li>
+          <li>采集是独立于真实工作的专门活动</li>
+          <li>夹爪为末端执行器形态，仅记录夹爪式抓取</li>
+          <li>产能受限于专门付费的演示工时</li>
+        </ul>
+      </div>
+      <div class="b">
+        <h5 class="o">ReFlow · 采集即劳动</h5>
+        <ul>
+          <li>仅一路头部相机（必要时加一路第三人称）</li>
+          <li>采集寄生于已经发生的真实劳动之上</li>
+          <li>双手自然操作，捕捉全手灵巧 + 真实分布</li>
+          <li>边际成本趋近于零，规模可分布式复制</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="scen">
+
+      <!-- 家庭 -->
+      <div class="scene-card reveal spotlight" data-tilt>
+        <div class="scene-art">
+          <img class="scene-img" src="scene-home.png" alt="家庭家务 ego 采集" loading="lazy">
+          <div class="scanline"></div>
+        </div>
+        <div class="scene-body"><h4>家庭家务</h4><p>真实家庭环境覆盖最广的日常操作技能，是预训练最稀缺的覆盖度来源。</p></div>
+      </div>
+
+      <!-- 快递分拣 -->
+      <div class="scene-card reveal spotlight" data-tilt>
+        <div class="scene-art">
+          <img class="scene-img" src="scene-sorting.png" alt="快递分拣 ego 采集" loading="lazy">
+          <div class="scanline"></div>
+        </div>
+        <div class="scene-body"><h4>快递分拣</h4><p>分拣作业天然高频、长尾、贴近真实交互分布，可直接合作部署、规模化采集。</p></div>
+      </div>
+
+      <!-- 酒店家政 -->
+      <div class="scene-card reveal spotlight" data-tilt>
+        <div class="scene-art">
+          <img class="scene-img" src="scene-hotel.png" alt="酒店家政 ego 采集" loading="lazy">
+          <div class="scanline"></div>
+        </div>
+        <div class="scene-body"><h4>酒店家政</h4><p>保洁阿姨只需头戴相机照常打扫——工作完成的同时，数据也已采集完毕。</p></div>
+      </div>
+
+    </div>
+
+    <div class="bottleneck reveal" style="margin-top:36px">
+      <div class="big" style="font-size:clamp(20px,2.6vw,28px)">聚焦预训练层——价值在于覆盖度与多样性，<br>而把与具体本体的对齐，留给下游少量真机后训练。<em> 数据天然跨本体、可被任意客户复用。</em></div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- 6. TWO TRACKS -->
+<section id="tracks" class="panel-dark">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">06 — 双轨布局</div>
+      <h2>两类本体，<br>两种物理上不同的数据。</h2>
+    </div>
+    <div class="track">
+      <div class="card w reveal">
+        <div class="badge">轨道一 · 商业切入点</div>
+        <h3>Ego 手部操作</h3>
+        <table>
+          <tr><td>目标本体</td><td>双臂机器人 / 灵巧手</td></tr>
+          <tr><td>采集形态</td><td>ego + 第三人称 / ego 双目</td></tr>
+          <tr><td>核心数据</td><td>ego 观测 + 手部 21 关键点 / 腕部 6DoF</td></tr>
+          <tr><td>能力依托</td><td>HandFlow 单目手部 SOTA 重建</td></tr>
+          <tr><td>验证</td><td>EgoScale 已证 scaling，链路短、拉力近</td></tr>
+        </table>
+      </div>
+      <div class="card h reveal">
+        <div class="badge">轨道二 · 不可替代壁垒</div>
+        <h3>全身人形</h3>
+        <table>
+          <tr><td>目标本体</td><td>人形机器人</td></tr>
+          <tr><td>采集形态</td><td>多视角（全身）+ 一路 ego（观测）</td></tr>
+          <tr><td>核心数据</td><td>全身姿态 + 手部 + ego 观测</td></tr>
+          <tr><td>能力依托</td><td>多视角全身重建（团队 3D 积累拓展）</td></tr>
+          <tr><td>稀缺度</td><td>loco-manipulation 数据为公认空白</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7. BUSINESS -->
+<section id="business">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">07 — 产品与商业模式</div>
+      <h2>DaaS + 平台，双轮驱动。</h2>
+    </div>
+    <div class="biz">
+      <div class="card reveal">
+        <h3>轮一 · DaaS 数据即服务</h3>
+        <div class="sub">提供现金流，沉淀有壁垒的数据资产</div>
+        <ul>
+          <li>标准化人类动作数据集授权（按场景 / 任务 / 精度分层）</li>
+          <li>定制化采集：按客户场景与任务规格快速交付</li>
+        </ul>
+      </div>
+      <div class="card reveal">
+        <h3>轮二 · 平台工具链</h3>
+        <div class="sub">轻资产扩张，锁定客户</div>
+        <ul>
+          <li>客户在自有环境部署采集 / 标注 / 质检工具链</li>
+          <li>平台托管算法、流水线、版本管理，占据数据生产入口</li>
+        </ul>
+      </div>
+    </div>
+    <div class="flywheel reveal">
+      <div class="fly">
+        <span class="fly-node">数据规模<b>↑</b></span>
+        <span class="fly-arrow">→</span>
+        <span class="fly-node">估计器精度<b>↑</b></span>
+        <span class="fly-arrow">→</span>
+        <span class="fly-node">边际成本<b>↓</b></span>
+        <span class="fly-arrow">→</span>
+        <span class="fly-node">场景覆盖<b>↑</b></span>
+        <span class="fly-arrow">→</span>
+        <span class="fly-node">客户增长<b>↑</b></span>
+        <span class="fly-loop"><span>↺</span>正反馈飞轮</span>
+      </div>
+      <p class="fly-cap">数据越多 → 估计器越准 → 边际标注成本越低 → 场景覆盖越广 → 客户越多 → 数据再度扩大。先转起这条飞轮的人，形成结构性的长期领先。</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- 8. RESEARCH / TEAM -->
+<section id="research" class="panel-dark">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">08 — 研究与团队</div>
+      <h2>这并非空中楼阁。</h2>
+      <p>ReFlow 的核心能力，建立在团队已发表与在投的两项研究之上，恰好覆盖动捕级精度与人-物交互理解两大支点。</p>
+    </div>
+    <div class="papers">
+      <a class="paper reveal" href="https://mxxu00.github.io/HandFlow/" target="_blank" rel="noopener">
+        <div class="venue">SIGGRAPH Asia 2026 · 在投</div>
+        <h3>HandFlow：生成式 4D 手部重建</h3>
+        <p>基于 MANO 参数空间的 flow-matching，由单目视频重建 4D 手部姿态。在 DexYCB、HOT3D 上于重建精度与时序平滑度大幅领先 HaMeR、HaWoR。</p>
+        <div class="metrics">
+          <div><b>20×</b><span>推理提速</span></div>
+          <div><b>SOTA</b><span>DexYCB / HOT3D</span></div>
+        </div>
+        <div class="arrow">查看项目主页 →</div>
+      </a>
+      <div class="paper reveal">
+        <div class="venue">ICCV 2025 · 已发表</div>
+        <h3>OVA-Fields：开放词汇可操作部件检测</h3>
+        <p>面向真实场景的弱监督 affordance 检测，将自然语言指令映射到 3D 场景中的可操作部件，验证「感知 → 人物交互 → 真机操作」的完整闭环。</p>
+        <div class="metrics">
+          <div><b>52.4%</b><span>复杂场景 mIoU</span></div>
+          <div><b>90%</b><span>真机操作成功率</span></div>
+        </div>
+        <div class="arrow muted">弱监督 · 低标注成本流水线</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 9. FOUNDATION MODEL -->
+<section id="brain">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="eyebrow">09 — 我们的基模</div>
+      <h2>如何用人类数据，<br>长出具身大脑。</h2>
+      <p>沿用已被验证的「预训练 → 对齐 → 后训练」范式：以海量 ReFlow 动捕级人类数据习得可泛化的世界与动作表征，再以少量真机数据完成本体对齐——规模与本体解耦。</p>
+    </div>
+
+    <div class="pipe">
+      <div class="pstage reveal">
+        <div class="pnum">01</div><h4>大规模预训练</h4>
+        <p>以 ReFlow 动捕级人类动作数据为底座，学习接触丰富的人-物交互与长程操作先验。<b>覆盖度与多样性</b>来自人类的自然作业。</p>
+        <span class="ptag">ReFlow 人类数据</span>
+      </div>
+      <div class="parrow">→</div>
+      <div class="pstage reveal">
+        <div class="pnum">02</div><h4>人-机对齐 · mid-training</h4>
+        <p>引入少量人-机配对数据，将人类先验<b>落地为可执行控制</b>，解耦「数据规模」与「本体对齐」两件事。</p>
+        <span class="ptag">少量真机数据</span>
+      </div>
+      <div class="parrow">→</div>
+      <div class="pstage reveal">
+        <div class="pnum">03</div><h4>本体后训练</h4>
+        <p>面向双臂、灵巧手或人形机器人，以极少示范完成<b>跨本体迁移</b>，部署到客户的具体本体。</p>
+        <span class="ptag">客户本体</span>
+      </div>
+    </div>
+
+    <div class="bdes">
+      <div class="bcard reveal"><h4>动作表征</h4><p>腕部相对 6DoF + 手部 21 关键点关节角 + 接触时序。关节空间监督在精细操作上远胜「仅腕部」（EgoScale 结论）。</p></div>
+      <div class="bcard reveal"><h4>为何人类数据预训练有效</h4><p>HumanScale 已证：同等规模下，人类视频预训练优于真机数据——验证损失更低、泛化更强，且随规模持续提升。</p></div>
+      <div class="bcard reveal"><h4>可度量的有效性</h4><p>预训练验证损失与真机操作成功率强相关（EgoScale，R²=0.998）：数据质量即模型性能，可由 scaling 曲线直接证明。</p></div>
+    </div>
+
+    <div class="bottleneck reveal" style="margin-top:36px">
+      <div class="big" style="font-size:clamp(20px,2.6vw,28px)">我们先用基模<em>证明数据有效</em>，<br>再让被证明的数据，把基模推向下一代具身大脑。</div>
+    </div>
+  </div>
+</section>
+
+<!-- 10. ENDGAME -->
+<section id="contact" class="endgame">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="eyebrow">10 — 终局与北极星</div>
+      <h2>先做数据基座，<br>再用数据，长出具身大脑。</h2>
+    </div>
+    <div class="phases reveal">
+      <div class="phase now">
+        <span class="ph-tag now">现在</span>
+        <div class="step">01</div><h4>数据基座</h4>
+        <p>以消费级硬件规模化生产动捕级人类动作数据，成为整个具身行业绕不开的数据层入口。</p>
+      </div>
+      <div class="phase">
+        <span class="ph-tag next">下一步</span>
+        <div class="step">02</div><h4>验证模型</h4>
+        <p>用自有数据训练参考策略、复现 scaling 曲线，直接证明「以 ReFlow 数据训练的策略，性能显著更优」。</p>
+      </div>
+      <div class="phase vision">
+        <span class="ph-tag vis">愿景</span>
+        <div class="step">03</div><h4>具身大脑</h4>
+        <p>当数据规模到达临界，以最大、最具壁垒的专有数据，垂直整合出具身基础模型。</p>
+      </div>
+    </div>
+    <div class="reveal">
+      <p class="vision">数据是护城河，大脑是终局。<br>我们用自己的数据，证明数据的价值。</p>
+      <div class="hero-cta">
+        <a class="btn" href="mailto:hengsu1019@gmail.com">联系 ReFlow →</a>
+        <a class="btn btn-ghost" href="#top">回到顶部</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-in">
+      <div>
+        <a class="logo" href="#top" style="margin-bottom:12px"><span class="dot"></span>Parallax Robotics</a>
+        <p class="muted">具身智能的数据基座 · The Data Foundry for Embodied AI。以消费级硬件规模化生产动捕级精度的人类动作数据。</p>
+      </div>
+      <div class="foot-links">
+        <a href="#shift">为什么是现在</a>
+        <a href="#gap">市场缺口</a>
+        <a href="#solution">解决方案</a>
+        <a href="#research">研究</a>
+      </div>
+    </div>
+    <div class="refs">
+      数据来源 / References：EgoScale (arXiv 2602.16710) · HumanScale (arXiv 2606.20521) · EgoVerse (arXiv 2604.07607) · EgoDex (Apple) · AgiBot World (智元 · 上海AI Lab) · Open X-Embodiment / RT-X (Google DeepMind) · NVIDIA Isaac GR00T N1 · InterHand2.6M (ECCV 2020) · DexYCB (CVPR 2021) · HOT3D · Learnable Triangulation (ICCV 2019) · MAMMA (2025) · UMI (RSS 2024) · HandFlow · OVA-Fields (ICCV 2025)。本页所列第三方机构与论文为公开研究，用以印证行业方向，不代表合作或背书关系。部分原型精度数据为占位，待实测填入。
+    </div>
+  </div>
+</footer>
+</div><!-- /content -->
+
+<script>
+  // nav shadow on scroll
+  const nav=document.getElementById('nav');
+  addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>20));
+  // reveal on scroll
+  const io=new IntersectionObserver((es)=>{
+    es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});
+  },{threshold:.12,rootMargin:'0px 0px -8% 0px'});
+  document.querySelectorAll('.reveal').forEach((el,i)=>{
+    el.style.transitionDelay=(Math.min(i%4,3)*70)+'ms';
+    io.observe(el);
+  });
+
+  // scroll progress + hero video shrink-to-left + crossfade
+  const prog=document.getElementById('progress');
+  const bgv=document.getElementById('bgvideo');
+  const cue=document.getElementById('scrollcue');
+  const heroMin=document.querySelector('.hero-min');
+  const shift=document.getElementById('shift');
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const onScroll=()=>{
+    const h=document.documentElement, vh=innerHeight;
+    prog.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+    const desktop=innerWidth>=820;
+    const p=clamp(scrollY/vh,0,1);                       // 0 顶部满屏 → 1 缩为左侧面板
+    if(bgv){
+      if(desktop){
+        const L=(a,b)=>(a+(b-a)*p);
+        bgv.style.left=L(0,4)+'vw';
+        bgv.style.top=L(0,16)+'vh';
+        bgv.style.width=L(100,42)+'vw';
+        bgv.style.height=L(100,68)+'vh';
+        bgv.style.borderRadius=L(0,18)+'px';
+      }else{
+        bgv.style.left='0';bgv.style.top='0';bgv.style.width='100vw';bgv.style.height='100vh';bgv.style.borderRadius='0';
+      }
+      let op=1;                                           // 内容页(#shift)到顶时淡出视频
+      if(shift)op=clamp(shift.getBoundingClientRect().top/(vh*0.7),0,1);
+      if(!desktop)op=clamp(1-scrollY/(vh*0.85),0,1);
+      bgv.style.opacity=op.toFixed(3);
+    }
+    if(heroMin)heroMin.style.opacity=clamp(1-p/0.5,0,1).toFixed(2);
+    if(cue)cue.style.opacity=(1-clamp(scrollY/220,0,1)).toFixed(2);
+  };
+  addEventListener('scroll',onScroll,{passive:true});
+  addEventListener('resize',onScroll);
+  onScroll();
+
+  // hero particles
+  const pc=document.getElementById('particles');
+  if(pc){for(let i=0;i<18;i++){const s=document.createElement('i');
+    s.style.left=Math.random()*100+'%';
+    s.style.bottom=(-10+Math.random()*55)+'%';
+    s.style.animationDuration=(8+Math.random()*11)+'s';
+    s.style.animationDelay=(Math.random()*9)+'s';
+    s.style.opacity=(.3+Math.random()*.5).toFixed(2);
+    pc.appendChild(s);}}
+
+  // count-up numbers
+  const fmt=n=>n.toLocaleString('en-US');
+  const cio=new IntersectionObserver((es)=>{es.forEach(e=>{
+    if(!e.isIntersecting)return;
+    const el=e.target, to=+el.dataset.to, t0=performance.now(), dur=1500;
+    const tick=t=>{const k=Math.min(1,(t-t0)/dur);
+      el.textContent=fmt(Math.floor((1-Math.pow(1-k,3))*to));
+      if(k<1)requestAnimationFrame(tick);else el.textContent=fmt(to);};
+    requestAnimationFrame(tick);cio.unobserve(el);
+  });},{threshold:.6});
+  document.querySelectorAll('.count').forEach(el=>cio.observe(el));
+
+  // tilt + cursor spotlight
+  const fine=matchMedia('(pointer:fine)').matches;
+  if(fine)document.querySelectorAll('[data-tilt]').forEach(el=>{
+    el.addEventListener('mousemove',ev=>{
+      const r=el.getBoundingClientRect();
+      const px=(ev.clientX-r.left)/r.width, py=(ev.clientY-r.top)/r.height;
+      el.style.transform=`perspective(900px) rotateY(${(px-.5)*5}deg) rotateX(${(.5-py)*5}deg) translateY(-4px)`;
+      el.style.setProperty('--mx',px*100+'%');el.style.setProperty('--my',py*100+'%');
+    });
+    el.addEventListener('mouseleave',()=>{el.style.transform='';});
+  });
+</script>
+</body>
+</html>
