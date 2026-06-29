@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Parallax Robotics — 具身智能的数据基座 · The Data Foundry for Embodied AI</title>
+<title>Parallax Robotics — 具身智能的Human Data基座 · The Human Data Foundry for Embodied AI</title>
 <meta name="description" content="ReFlow 以消费级硬件规模化生产动捕级精度的人类动作数据，构筑具身智能时代不可或缺的数据基础设施。" />
 <style>
   :root{
@@ -214,6 +214,7 @@
   /* CTA / endgame */
   .endgame{text-align:center;padding:130px 0}
   .endgame h2{font-size:clamp(30px,5vw,58px);letter-spacing:-.03em;line-height:1.08;max-width:18ch;margin:0 auto;font-weight:700}
+  .endgame-lead{margin:26px auto 0;max-width:54ch;font-size:clamp(15px,1.7vw,17.5px);color:var(--muted);line-height:1.72;text-align:center}
   .endgame .vision{margin-top:30px;font-family:var(--serif);font-style:italic;font-size:clamp(18px,2.4vw,26px);color:#aeb8d2;max-width:38ch;margin-left:auto;margin-right:auto}
   .endgame .hero-cta{justify-content:center;margin-top:44px}
   .phases{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:50px 0 6px;text-align:left}
@@ -384,12 +385,12 @@
   <div class="wrap nav-in">
     <a class="logo" href="#top"><span class="dot"></span>Parallax Robotics</a>
     <div class="nav-links">
-      <a href="#shift">为什么是现在</a>
+      <a href="#shift">背景</a>
       <a href="#gap">市场缺口</a>
       <a href="#solution">解决方案</a>
-      <a href="#tracks">双轨</a>
+      <a href="#tracks">人类数据</a>
       <a href="#research">研究</a>
-      <a href="#brain">基模</a>
+      <a href="#contact">终局</a>
     </div>
     <a class="btn" href="#contact">联系我们</a>
   </div>
@@ -400,7 +401,7 @@
   <div class="wrap hero-min">
     <div class="hero-text">
       <div class="eyebrow reveal">REFLOW · THE DATA FOUNDRY FOR EMBODIED AI</div>
-      <h1 class="reveal"><span class="grad">具身智能的数据基座</span></h1>
+      <h1 class="reveal"><span class="grad">具身智能Human Data基座</span></h1>
     </div>
     <div class="hero-visual reveal" hidden>
       <div class="ego-viewport">
@@ -446,9 +447,9 @@
     <div class="intro-stage" aria-hidden="true"></div>
     <div class="intro-copy">
       <div class="eyebrow reveal">我们做什么</div>
-      <h2 class="reveal">在消费级硬件上，<br>生产动捕级精度的人类动作数据。</h2>
-      <p class="reveal">ReFlow 规模化生产人类执行任务时的高精度动作序列——这是模型实现跨本体泛化的核心输入。数据不依附任何本体形态（“无本体”）：同一段人类操作，可同时用于训练双臂机器人、灵巧手与人形机器人。我们不做本体，而成为所有具身厂商共同的数据供应方。</p>
-      <div class="hero-tag reveal"><b>动捕级精度</b><span>·</span><b>消费级成本</b><span>·</span><b>无本体 · 跨本体</b></div>
+      <h2 class="reveal">用行业百分之一的成本，<br>生产动捕级精度的人类动作数据。</h2>
+      <p class="reveal">ReFlow 用消费级相机，采集人类完成真实任务时的高精度动作。同一段操作不绑定任何机器人形态，可同时用于训练双臂机器人、灵巧手与人形机器人。</p>
+      <div class="hero-tag reveal"><b>动捕级精度</b><span>·</span><b>百分之一成本</b><span>·</span><b>跨本体复用</b></div>
       <div class="hero-cta reveal">
         <a class="btn" href="#contact">了解机会 →</a>
         <a class="btn btn-ghost" href="#research">查看研究</a>
@@ -458,33 +459,26 @@
 </section>
 
 <div class="content">
-<!-- 1. THE SHIFT -->
-<section id="shift">
+<!-- 01 · 背景：技术 + 商业合并为一栏 -->
+<section id="shift" class="panel-dark">
   <div class="wrap">
     <div class="sec-head reveal">
-      <div class="eyebrow">01 — 一个正在到来的转变</div>
-      <h2>过去十年，AI 学会了思考。<br>下一个十年，它必须学会行动。</h2>
-      <p>这场转变所需的两个前提，已在同一时点先后成熟。</p>
+      <div class="eyebrow">01 — 背景</div>
+      <h2>过去十年，AI 学会了思考；<br>下一个十年，它要学会行动。</h2>
+      <p>支撑这场转变的两个前提，刚刚同时到位。</p>
     </div>
     <div class="ready">
-      <div class="card reveal"><h3><span class="tick">●</span> 模型已经就绪</h3><p class="muted">VLA 与世界模型跨越了「可用」门槛，架构与训练范式趋于收敛。</p></div>
-      <div class="card reveal"><h3><span class="tick">●</span> 本体已经就绪</h3><p class="muted">人形机器人与灵巧手越过硬件可用线，量产进程加速展开。</p></div>
+      <div class="card reveal"><h3><span class="tick">●</span> 模型已就绪</h3><p class="muted">VLA 与世界模型越过可用门槛，架构与训练范式趋于收敛。</p></div>
+      <div class="card reveal"><h3><span class="tick">●</span> 本体已就绪</h3><p class="muted">人形机器人与灵巧手跨过硬件可用线，量产进程加速。</p></div>
     </div>
     <div class="bottleneck reveal">
       <div class="big">模型不再是瓶颈，本体也不再是瓶颈。<br>行业的全部重量，压到了最后一块拼图上——<em>数据。</em></div>
     </div>
-  </div>
-</section>
 
-<hr class="divider"/>
-
-<!-- 2. BOTTLENECK + EVIDENCE -->
-<section id="evidence" class="panel-dark">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <div class="eyebrow">02 — 真正的瓶颈是数据</div>
-      <h2>最有力的信号：行业最强的玩家，<br>在造产品之前，先造数据。</h2>
-      <p>这与大语言模型的演进高度同构——GPT 的瓶颈并非模型，而在于当时尚不存在的 RLHF 数据；Scale AI 将其规模化生产，奠定了 AI 的数据基座。今日的具身领域，正处于同一历史时刻。</p>
+    <div class="sec-head reveal" style="margin-top:84px">
+      <div class="eyebrow">最有力的信号</div>
+      <h2>行业最强的玩家，<br>在造产品之前，先造数据。</h2>
+      <p>这和大语言模型如出一辙：GPT 真正的瓶颈不是模型，而是当时还不存在的 RLHF 数据，Scale AI 把它规模化，才有了今天的 AI。具身领域，正站在同一个路口。</p>
     </div>
     <div class="stats">
       <div class="stat reveal spotlight" data-tilt><div class="n"><span class="count" data-to="20854">0</span><span style="font-size:18px"> h</span></div><div class="l">EgoScale 以两万小时人类数据，验证数据规模与性能的对数线性律（R²=0.998）</div><div class="src mono">EgoScale · NVIDIA·Berkeley·UMD</div></div>
@@ -518,7 +512,7 @@
 <section id="gap">
   <div class="wrap">
     <div class="sec-head reveal">
-      <div class="eyebrow">03 — 世界需要的数据，今天还不存在</div>
+      <div class="eyebrow">02 — 世界需要的数据，今天还不存在</div>
       <h2>两条路，各自撞上<br>同一面墙的不同侧。</h2>
       <p>巨头们验证了数据是瓶颈，却也暴露了现有路径的天花板。精度、成本、规模——三者从未被同时满足。</p>
     </div>
@@ -567,9 +561,9 @@
 <section id="solution" class="panel-dark">
   <div class="wrap">
     <div class="sec-head reveal">
-      <div class="eyebrow">04 — 解决方案</div>
+      <div class="eyebrow">03 — 解决方案</div>
       <h2>把动捕实验室，<br>装进一台相机。</h2>
-      <p>精度没有捷径。ReFlow 以一路第一人称视角为核心，叠加一路第三人称或 ego 双目视角，用多视角几何把重建精度推至动捕级——而硬件始终是消费级相机。</p>
+      <p>ReFlow 以一路第一人称视角为核心，叠加一路第三人称或 ego 双目视角，用多视角几何把重建精度推到动捕级。而硬件始终是消费级相机——成本只有动捕实验室的百分之一。</p>
     </div>
 
     <div class="sol-grid">
@@ -616,7 +610,7 @@
 <section id="collection">
   <div class="wrap">
     <div class="sec-head reveal">
-      <div class="eyebrow">05 — 采集模式</div>
+      <div class="eyebrow">04 — 采集模式</div>
       <h2>让数据采集，<br>隐入真实劳动。</h2>
       <p>无需专用设备、无需专门的演示流程。采集者佩戴一路头部相机，以双手自然完成本职工作，数据采集即同步完成——捕捉真实、长尾、全手灵巧的操作分布。</p>
     </div>
@@ -685,15 +679,16 @@
 <section id="tracks" class="panel-dark">
   <div class="wrap">
     <div class="sec-head reveal">
-      <div class="eyebrow">06 — 双轨布局</div>
-      <h2>两类本体，<br>两种物理上不同的数据。</h2>
+      <div class="eyebrow">05 — 完整的人类数据</div>
+      <h2>能从人类动作里提取的智能，<br>一套 pipeline 一次拿全。</h2>
+      <p>所有可以从人类动作中提取的智能，我们用同一条 pipeline 解决。一段采集，手与身体两类数据同步产出——覆盖从灵巧操作到全身协同的完整人类智能，不绑定任何具体本体。</p>
     </div>
     <div class="track">
       <div class="card w reveal">
-        <div class="badge">轨道一 · 商业切入点</div>
-        <h3>Ego 手部操作</h3>
+        <div class="badge">数据形态 · 手</div>
+        <h3>手部 · 灵巧操作</h3>
         <table>
-          <tr><td>目标本体</td><td>双臂机器人 / 灵巧手</td></tr>
+          <tr><td>对应本体</td><td>双臂机器人 / 灵巧手</td></tr>
           <tr><td>采集形态</td><td>ego + 第三人称 / ego 双目</td></tr>
           <tr><td>核心数据</td><td>ego 观测 + 手部 21 关键点 / 腕部 6DoF</td></tr>
           <tr><td>能力依托</td><td>HandFlow 单目手部 SOTA 重建</td></tr>
@@ -701,10 +696,10 @@
         </table>
       </div>
       <div class="card h reveal">
-        <div class="badge">轨道二 · 不可替代壁垒</div>
-        <h3>全身人形</h3>
+        <div class="badge">数据形态 · 身体</div>
+        <h3>全身 · 协同运动</h3>
         <table>
-          <tr><td>目标本体</td><td>人形机器人</td></tr>
+          <tr><td>对应本体</td><td>人形机器人</td></tr>
           <tr><td>采集形态</td><td>多视角（全身）+ 一路 ego（观测）</td></tr>
           <tr><td>核心数据</td><td>全身姿态 + 手部 + ego 观测</td></tr>
           <tr><td>能力依托</td><td>多视角全身重建（团队 3D 积累拓展）</td></tr>
@@ -719,7 +714,7 @@
 <section id="business">
   <div class="wrap">
     <div class="sec-head reveal">
-      <div class="eyebrow">07 — 产品与商业模式</div>
+      <div class="eyebrow">06 — 产品与商业模式</div>
       <h2>DaaS + 平台，双轮驱动。</h2>
     </div>
     <div class="biz">
@@ -764,9 +759,16 @@
 <section id="research" class="panel-dark">
   <div class="wrap">
     <div class="sec-head reveal">
-      <div class="eyebrow">08 — 研究与团队</div>
+      <div class="eyebrow">07 — 研究与团队</div>
       <h2>这并非空中楼阁。</h2>
-      <p>ReFlow 的核心能力，建立在团队已发表与在投的两项研究之上，恰好覆盖动捕级精度与人-物交互理解两大支点。</p>
+      <p>核心成员来自 HKUST(GZ) 岳玉涛教授团队与 vivo Robotics Lab，背靠顶尖学术资源，也深谙行业的训练之道。下面两项已发表与在投的研究，正好覆盖动捕级精度与人-物交互理解两大支点。</p>
+    </div>
+    <div class="evidence reveal" style="margin-top:28px;border-top:0;padding-top:0">
+      <div class="chips">
+        <span class="chip"><b>HKUST(GZ)</b> · 岳玉涛教授团队</span>
+        <span class="chip"><b>vivo Robotics Lab</b> · 行业训练经验</span>
+        <span class="chip">顶尖学术资源 <b>×</b> 工程化落地</span>
+      </div>
     </div>
     <div class="papers">
       <a class="paper reveal" href="https://mxxu00.github.io/HandFlow/" target="_blank" rel="noopener">
@@ -793,64 +795,24 @@
   </div>
 </section>
 
-<!-- 9. FOUNDATION MODEL -->
-<section id="brain">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <div class="eyebrow">09 — 我们的基模</div>
-      <h2>如何用人类数据，<br>长出具身大脑。</h2>
-      <p>沿用已被验证的「预训练 → 对齐 → 后训练」范式：以海量 ReFlow 动捕级人类数据习得可泛化的世界与动作表征，再以少量真机数据完成本体对齐——规模与本体解耦。</p>
-    </div>
-
-    <div class="pipe">
-      <div class="pstage reveal">
-        <div class="pnum">01</div><h4>大规模预训练</h4>
-        <p>以 ReFlow 动捕级人类动作数据为底座，学习接触丰富的人-物交互与长程操作先验。<b>覆盖度与多样性</b>来自人类的自然作业。</p>
-        <span class="ptag">ReFlow 人类数据</span>
-      </div>
-      <div class="parrow">→</div>
-      <div class="pstage reveal">
-        <div class="pnum">02</div><h4>人-机对齐 · mid-training</h4>
-        <p>引入少量人-机配对数据，将人类先验<b>落地为可执行控制</b>，解耦「数据规模」与「本体对齐」两件事。</p>
-        <span class="ptag">少量真机数据</span>
-      </div>
-      <div class="parrow">→</div>
-      <div class="pstage reveal">
-        <div class="pnum">03</div><h4>本体后训练</h4>
-        <p>面向双臂、灵巧手或人形机器人，以极少示范完成<b>跨本体迁移</b>，部署到客户的具体本体。</p>
-        <span class="ptag">客户本体</span>
-      </div>
-    </div>
-
-    <div class="bdes">
-      <div class="bcard reveal"><h4>动作表征</h4><p>腕部相对 6DoF + 手部 21 关键点关节角 + 接触时序。关节空间监督在精细操作上远胜「仅腕部」（EgoScale 结论）。</p></div>
-      <div class="bcard reveal"><h4>为何人类数据预训练有效</h4><p>HumanScale 已证：同等规模下，人类视频预训练优于真机数据——验证损失更低、泛化更强，且随规模持续提升。</p></div>
-      <div class="bcard reveal"><h4>可度量的有效性</h4><p>预训练验证损失与真机操作成功率强相关（EgoScale，R²=0.998）：数据质量即模型性能，可由 scaling 曲线直接证明。</p></div>
-    </div>
-
-    <div class="bottleneck reveal" style="margin-top:36px">
-      <div class="big" style="font-size:clamp(20px,2.6vw,28px)">我们先用基模<em>证明数据有效</em>，<br>再让被证明的数据，把基模推向下一代具身大脑。</div>
-    </div>
-  </div>
-</section>
-
-<!-- 10. ENDGAME -->
+<!-- 08 · 从数据基座到具身大脑（基模 + 终局合并为一栏） -->
 <section id="contact" class="endgame">
   <div class="wrap">
     <div class="reveal">
-      <div class="eyebrow">10 — 终局与北极星</div>
+      <div class="eyebrow">08 — 终局与北极星</div>
       <h2>先做数据基座，<br>再用数据，长出具身大脑。</h2>
+      <p class="endgame-lead">李飞飞先做了 ImageNet，才有了之后的视觉智能时代——数据基座决定了模型的上限。同样地，当 ReFlow 成为具身行业绕不开的数据供应方，沿「预训练 → 对齐 → 后训练」把人类数据长成具身大脑，便是水到渠成。</p>
     </div>
     <div class="phases reveal">
       <div class="phase now">
         <span class="ph-tag now">现在</span>
         <div class="step">01</div><h4>数据基座</h4>
-        <p>以消费级硬件规模化生产动捕级人类动作数据，成为整个具身行业绕不开的数据层入口。</p>
+        <p>用消费级硬件规模化生产动捕级人类动作数据，成为整个具身行业绕不开的数据入口。</p>
       </div>
       <div class="phase">
         <span class="ph-tag next">下一步</span>
         <div class="step">02</div><h4>验证模型</h4>
-        <p>用自有数据训练参考策略、复现 scaling 曲线，直接证明「以 ReFlow 数据训练的策略，性能显著更优」。</p>
+        <p>用自有数据训练参考策略、复现 scaling 曲线，证明「以 ReFlow 数据训练，性能显著更优」。人类数据预训练已被验证：同等规模下优于真机，预训练损失与真机成功率强相关（R²=0.998）。</p>
       </div>
       <div class="phase vision">
         <span class="ph-tag vis">愿景</span>
@@ -873,10 +835,10 @@
     <div class="foot-in">
       <div>
         <a class="logo" href="#top" style="margin-bottom:12px"><span class="dot"></span>Parallax Robotics</a>
-        <p class="muted">具身智能的数据基座 · The Data Foundry for Embodied AI。以消费级硬件规模化生产动捕级精度的人类动作数据。</p>
+        <p class="muted">具身智能的数据基座 · The Data Foundry for Embodied AI。用行业百分之一的成本，规模化生产动捕级精度的人类动作数据。</p>
       </div>
       <div class="foot-links">
-        <a href="#shift">为什么是现在</a>
+        <a href="#shift">背景</a>
         <a href="#gap">市场缺口</a>
         <a href="#solution">解决方案</a>
         <a href="#research">研究</a>
